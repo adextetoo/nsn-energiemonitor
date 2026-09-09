@@ -1,0 +1,1022 @@
+<!doctype html><html lang="de"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style><title>NSN Energiemonitor</title>
+<meta name="description" content="Illustrative energy-cockpit model for Natursteinwerke im Nordschwarzwald - load, diesel burn, controllable variance and equipment activity across the Magstadt, Enzberg, Keltern and Bruchsal works.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0D0F0C" media="(prefers-color-scheme:dark)">
+<meta name="theme-color" content="#F1F2EC" media="(prefers-color-scheme:light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2386C05F'/%3E%3Ctext x='32' y='41' font-family='-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif' font-size='20' font-weight='600' fill='%23ffffff' text-anchor='middle'%3ENSN%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2386C05F'/%3E%3Ctext x='32' y='41' font-family='-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif' font-size='20' font-weight='600' fill='%23ffffff' text-anchor='middle'%3ENSN%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NSN Energiemonitor">
+<meta property="og:description" content="Illustrative energy-cockpit model for Natursteinwerke im Nordschwarzwald - load, diesel burn, controllable variance and equipment activity across the Magstadt, Enzberg, Keltern and Bruchsal works.">
+<meta name="twitter:card" content="summary">
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   NSN ENERGIEMONITOR
+   Natursteinwerke im Nordschwarzwald — Magstadt · Enzberg · Keltern
+   · Bruchsal.  Cockpit layout, Apple system typography, NSN green
+   over stone-grey.  Dual theme + DE/EN, both with locale number
+   formatting (29.750 € vs €29,750).
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  color-scheme:dark;
+  --ground:#0D0F0C; --card:#181B16; --card-2:#242820; --card-3:#31362B; --seg-thumb:#31362B;
+  --hair:rgba(203,216,190,.20); --hair-soft:rgba(203,216,190,.11);
+  --label:#FFFFFF;
+  --label-2:rgba(236,242,228,.62); --label-3:rgba(236,242,228,.34); --label-4:rgba(236,242,228,.18);
+  --nsn:#86C05F;
+  --good:#58C97A;  --orange:#E0A63F;  --blue:#5AA9E6;  --red:#E2796B;
+  --node-edge:rgba(255,255,255,.22); --node-sel:rgba(255,255,255,.60);
+  --bar-bg:rgba(13,15,12,.74);
+  --btn-bg:#FFFFFF; --btn-fg:#0D0F0C; --btn-bg-h:rgba(255,255,255,.86);
+  --thumb-shadow:0 1px 3px rgba(0,0,0,.5);
+  --chart-a:rgba(134,192,95,.30); --chart-b:rgba(134,192,95,0);
+  --sf:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,Inter,"Helvetica Neue",Arial,sans-serif;
+  --sfmono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --r:18px;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    color-scheme:light;
+    --ground:#F1F2EC; --card:#FFFFFF; --card-2:#E5E6DD; --card-3:#D5D7CB; --seg-thumb:#FFFFFF;
+    --hair:rgba(58,62,50,.28); --hair-soft:rgba(58,62,50,.14);
+    --label:#141710;
+    --label-2:rgba(56,60,48,.66); --label-3:rgba(56,60,48,.50); --label-4:rgba(56,60,48,.26);
+    --nsn:#3F7A2E;
+    --good:#2E7D32;  --orange:#B26B00;  --blue:#0A6BC4;  --red:#B3261E;
+    --node-edge:rgba(0,0,0,.16); --node-sel:rgba(0,0,0,.55);
+    --bar-bg:rgba(241,242,236,.80);
+    --btn-bg:#141710; --btn-fg:#FFFFFF; --btn-bg-h:rgba(20,23,16,.84);
+    --thumb-shadow:0 1px 3px rgba(0,0,0,.16);
+    --chart-a:rgba(63,122,46,.22); --chart-b:rgba(63,122,46,0);
+  }
+}
+:root[data-theme="light"], :root.t-light{
+  color-scheme:light;
+  --ground:#F1F2EC; --card:#FFFFFF; --card-2:#E5E6DD; --card-3:#D5D7CB; --seg-thumb:#FFFFFF;
+  --hair:rgba(58,62,50,.28); --hair-soft:rgba(58,62,50,.14);
+  --label:#141710;
+  --label-2:rgba(56,60,48,.66); --label-3:rgba(56,60,48,.50); --label-4:rgba(56,60,48,.26);
+  --nsn:#3F7A2E;
+  --good:#2E7D32;  --orange:#B26B00;  --blue:#0A6BC4;  --red:#B3261E;
+  --node-edge:rgba(0,0,0,.16); --node-sel:rgba(0,0,0,.55);
+  --bar-bg:rgba(241,242,236,.80);
+  --btn-bg:#141710; --btn-fg:#FFFFFF; --btn-bg-h:rgba(20,23,16,.84);
+  --thumb-shadow:0 1px 3px rgba(0,0,0,.16);
+  --chart-a:rgba(63,122,46,.22); --chart-b:rgba(63,122,46,0);
+}
+:root[data-theme="dark"], :root.t-dark{
+  color-scheme:dark;
+  --ground:#0D0F0C; --card:#181B16; --card-2:#242820; --card-3:#31362B; --seg-thumb:#31362B;
+  --hair:rgba(203,216,190,.20); --hair-soft:rgba(203,216,190,.11);
+  --label:#FFFFFF;
+  --label-2:rgba(236,242,228,.62); --label-3:rgba(236,242,228,.34); --label-4:rgba(236,242,228,.18);
+  --nsn:#86C05F;
+  --good:#58C97A;  --orange:#E0A63F;  --blue:#5AA9E6;  --red:#E2796B;
+  --node-edge:rgba(255,255,255,.22); --node-sel:rgba(255,255,255,.60);
+  --bar-bg:rgba(13,15,12,.74);
+  --btn-bg:#FFFFFF; --btn-fg:#0D0F0C; --btn-bg-h:rgba(255,255,255,.86);
+  --thumb-shadow:0 1px 3px rgba(0,0,0,.5);
+  --chart-a:rgba(134,192,95,.30); --chart-b:rgba(134,192,95,0);
+}
+/* the viewer's own click, last, so it beats the host's own stamp */
+:root.t-light{color-scheme:light}
+:root.t-dark{color-scheme:dark}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--ground);color:var(--label);font-family:var(--sf);
+  font-size:15px;line-height:1.45;letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  transition:background-color .32s ease,color .32s ease;
+}
+h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.022em}
+.cap{font-size:10px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--label-3)}
+.num{font-variant-numeric:tabular-nums}
+.shell{max-width:1280px;margin:0 auto;padding:0 20px 72px}
+
+.bar{position:sticky;top:0;z-index:60;background:var(--bar-bg);
+  -webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);
+  border-bottom:.5px solid var(--hair)}
+.bar-in{max-width:1280px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:12px}
+.mark{display:flex;align-items:center;gap:11px;min-width:0}
+.mark .glyph{width:27px;height:27px;border-radius:7px;background:var(--nsn);display:grid;
+  place-items:center;flex:none;font-size:11px;font-weight:600;color:#fff}
+.mark .nm{font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mark .nm i{font-style:normal;color:var(--label-3)}
+.spacer{flex:1}
+.live{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--label-2);border:.5px solid var(--hair);border-radius:100px;padding:5px 12px 5px 10px;white-space:nowrap}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--good);flex:none;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(88,201,122,.5)}
+  70%{box-shadow:0 0 0 7px rgba(88,201,122,0)}
+  100%{box-shadow:0 0 0 0 rgba(88,201,122,0)}
+}
+.clock{font-family:var(--sfmono);font-size:12px;color:var(--label-2);font-variant-numeric:tabular-nums}
+@media(max-width:760px){.clock{display:none}}
+@media(max-width:560px){.mark .nm i{display:none}}
+
+.tgl,.lng{flex:none;height:31px;border-radius:100px;border:.5px solid var(--hair);
+  background:var(--card);color:var(--label-2);display:grid;place-items:center;cursor:pointer;
+  font-family:inherit;transition:background-color .2s,color .2s,border-color .2s}
+.tgl{width:31px;border-radius:50%}
+.lng{padding:0 11px;font-size:11px;font-weight:600;letter-spacing:.1em}
+.tgl:hover,.lng:hover{color:var(--label);background:var(--card-2)}
+.tgl:active,.lng:active{transform:scale(.94)}
+.tgl:focus-visible,.lng:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.tgl svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.i-sun{display:block} .i-moon{display:none}
+
+.card,.hero,.act,.bar,.tab,.btn,.seg,.note,.tgl,.lng{
+  transition:background-color .32s ease,border-color .32s ease,color .32s ease}
+@media(prefers-reduced-motion:reduce){
+  body,.card,.hero,.act,.bar,.tab,.btn,.seg,.note,.tgl,.lng{transition:none}
+}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:18px 0 4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;font-family:inherit;font-size:13px;color:var(--label-2);background:var(--card);
+  border:.5px solid transparent;border-radius:100px;padding:8px 16px;cursor:pointer}
+.tab:hover{color:var(--label)}
+.tab[aria-selected="true"]{background:var(--btn-bg);color:var(--btn-fg);font-weight:500}
+.tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+.hero{background:var(--card);border-radius:26px;margin-top:14px;padding:30px 30px 8px;
+  border:.5px solid var(--hair-soft);overflow:hidden}
+@media(max-width:640px){.hero{padding:24px 18px 4px;border-radius:22px}}
+.hero-top{display:flex;flex-wrap:wrap;gap:26px 48px;align-items:flex-end}
+.readout .cap{margin-bottom:10px}
+.readout .big{font-size:clamp(42px,8vw,74px);font-weight:200;letter-spacing:-.045em;
+  line-height:.92;font-variant-numeric:tabular-nums}
+.readout .big u{font-size:.34em;font-weight:300;letter-spacing:-.01em;text-decoration:none;
+  color:var(--label-2);margin-left:.16em}
+.readout .sub{color:var(--label-2);font-size:13.5px;margin-top:9px}
+.delta{font-weight:500}
+.delta.up{color:var(--red)} .delta.down{color:var(--good)}
+
+.flow{margin:6px -10px 0}
+.flow svg{display:block;width:100%;height:auto}
+.fnode{fill:var(--card-2);stroke:var(--hair);stroke-width:.5}
+.fnode.on{stroke:var(--node-edge)}
+.fnode.sel{stroke:var(--node-sel);stroke-width:1.4}
+.fpath{fill:none;stroke:var(--hair);stroke-width:1.5}
+.fdash{fill:none;stroke-width:2;stroke-linecap:round;stroke-dasharray:1 11;
+  animation:flowmove 1.15s linear infinite}
+@keyframes flowmove{to{stroke-dashoffset:-24}}
+.fdash.s1{stroke:var(--blue)} .fdash.s2{stroke:var(--nsn)} .fdash.s3{stroke:var(--orange)}
+.flabel{font-family:var(--sf);font-size:11px;fill:var(--label-2)}
+.fval{font-family:var(--sf);font-size:15px;font-weight:500;fill:var(--label);font-variant-numeric:tabular-nums}
+.fcap{font-family:var(--sf);font-size:8.5px;letter-spacing:.2em;fill:var(--label-2)}
+.fhub{font-family:var(--sf);font-size:27px;font-weight:250;fill:var(--label);letter-spacing:-1px}
+@media(prefers-reduced-motion:reduce){.fdash{animation:none;stroke-dasharray:none;opacity:.5}.dot{animation:none}}
+
+.seg{display:inline-flex;position:relative;background:var(--card-2);border-radius:10px;padding:2px;margin:26px 0 0}
+.seg button{position:relative;z-index:2;font-family:inherit;font-size:13px;font-weight:500;
+  color:var(--label-2);background:none;border:0;border-radius:8px;padding:6px 18px;cursor:pointer;
+  transition:color .2s;white-space:nowrap}
+.seg button[aria-selected="true"]{color:var(--label)}
+.seg button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.seg .thumb{position:absolute;z-index:1;top:2px;bottom:2px;border-radius:8px;background:var(--seg-thumb);
+  box-shadow:var(--thumb-shadow);
+  transition:transform .28s cubic-bezier(.32,.72,0,1),width .28s cubic-bezier(.32,.72,0,1)}
+
+.grid{display:grid;gap:14px;margin-top:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:1.55fr 1fr}
+@media(max-width:980px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+@media(max-width:520px){.g4{grid-template-columns:1fr}}
+.card{background:var(--card);border:.5px solid var(--hair-soft);border-radius:var(--r);padding:18px 20px;min-width:0}
+.card h3{font-size:14px;font-weight:500;margin-bottom:2px}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+.stat .v{font-size:33px;font-weight:250;letter-spacing:-.035em;line-height:1.05;
+  font-variant-numeric:tabular-nums;margin:12px 0 6px}
+.stat .foot{font-size:12.5px;color:var(--label-2)}
+.stat .v.r{color:var(--red)} .stat .v.o{color:var(--orange)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;
+  padding:3px 9px;border-radius:100px;white-space:nowrap}
+.chip.g{background:rgba(88,201,122,.16);color:var(--good)}
+.chip.r{background:rgba(226,121,107,.16);color:var(--red)}
+.chip.o{background:rgba(224,166,63,.16);color:var(--orange)}
+.chip.b{background:rgba(90,169,230,.16);color:var(--blue)}
+.chip.n{background:var(--card-2);color:var(--label-2)}
+
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.axis{font-family:var(--sf);font-size:10px;fill:var(--label-3)}
+.gridline{stroke:var(--hair-soft);stroke-width:.5}
+.thresh{stroke:var(--red);stroke-width:1;stroke-dasharray:3 4}
+
+.asset{border-bottom:.5px solid var(--hair-soft)}
+.asset:last-child{border-bottom:0}
+.asset-b{width:100%;text-align:left;background:none;border:0;padding:13px 0;cursor:pointer;
+  font-family:inherit;color:inherit;display:grid;grid-template-columns:112px 1fr 92px 22px;gap:14px;align-items:center}
+@media(max-width:640px){.asset-b{grid-template-columns:96px 1fr 20px}.asset-b .sp{display:none}}
+.asset-b:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;border-radius:8px}
+.aid{font-family:var(--sfmono);font-size:12.5px;color:var(--label);letter-spacing:-.02em}
+.aid i{display:block;font-style:normal;font-family:var(--sf);font-size:10.5px;color:var(--label-3);margin-top:2px}
+.util{display:flex;height:7px;border-radius:100px;overflow:hidden;background:var(--card-2)}
+.util i{display:block;height:100%}
+.util .work{background:var(--good)} .util .idle{background:var(--orange)} .util .down{background:var(--card-3)}
+.ulegend{font-family:var(--sfmono);font-size:10.5px;color:var(--label-3);margin-top:6px;font-variant-numeric:tabular-nums}
+.sp{font-family:var(--sfmono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.chev{color:var(--label-3);transition:transform .25s cubic-bezier(.32,.72,0,1);justify-self:end;font-size:13px}
+.asset[data-open="true"] .chev{transform:rotate(90deg)}
+.detail{display:none;padding:2px 0 16px;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:14px}
+.asset[data-open="true"] .detail{display:grid}
+.detail div .cap{font-size:9px;letter-spacing:.2em}
+.detail div .dv{font-family:var(--sfmono);font-size:14px;margin-top:5px;font-variant-numeric:tabular-nums}
+
+.act{background:var(--card);border:.5px solid var(--hair-soft);border-radius:var(--r);
+  padding:18px 20px;display:flex;flex-direction:column;gap:14px;min-width:0;
+  transition:opacity .3s,border-color .25s}
+.act[data-state="done"]{opacity:.42;border-color:rgba(88,201,122,.45)}
+.act[data-state="off"]{opacity:.32}
+.act .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.act .worth{font-size:21px;font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  white-space:nowrap;text-align:right}
+.act .worth u{text-decoration:none;font-size:.56em;color:var(--label-2);display:block;
+  font-weight:400;letter-spacing:0;margin-top:2px}
+.act .do{font-size:14.5px;line-height:1.42;color:var(--label);margin:0}
+.act dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:12.5px}
+.act dt{color:var(--label-3);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding-top:3px}
+.act dd{margin:0;color:var(--label-2)}
+.act .btns{display:flex;gap:8px;margin-top:auto;padding-top:4px}
+.btn{flex:1;font-family:inherit;font-size:13px;font-weight:500;padding:9px 14px;border-radius:100px;
+  border:.5px solid var(--hair);background:var(--card-2);color:var(--label);cursor:pointer}
+.btn:hover{background:var(--card-3)}
+.btn:active{transform:scale(.975)}
+.btn.p{background:var(--btn-bg);color:var(--btn-fg);border-color:var(--btn-bg)}
+.btn.p:hover{background:var(--btn-bg-h)}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn[disabled]{opacity:.4;cursor:default}
+
+.wf{display:grid;gap:9px;margin-top:4px}
+.wfr{display:grid;grid-template-columns:1fr 74px 92px;gap:12px;align-items:center;font-size:12.5px}
+.wfr .l{color:var(--label-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wfr .n{font-family:var(--sfmono);text-align:right;font-variant-numeric:tabular-nums}
+.wfb{height:9px;background:var(--card-2);border-radius:2px;position:relative;overflow:hidden}
+.wfb i{position:absolute;top:0;bottom:0;border-radius:2px}
+.wfr.tot .l,.wfr.tot .n{color:var(--label);font-weight:500}
+.wfr.key .l,.wfr.key .n{color:var(--red);font-weight:500}
+
+.note{margin-top:26px;padding:16px 20px;border:.5px solid var(--hair-soft);border-radius:14px;
+  font-size:12.5px;color:var(--label-3);line-height:1.55}
+.note b{color:var(--label-2);font-weight:500}
+.sect{margin-top:34px}
+.sect-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.sect-h h2{font-size:19px;font-weight:500}
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="mark">
+      <span class="glyph" aria-hidden="true">NSN</span>
+      <span class="nm">Natursteinwerke <i>· Nordschwarzwald</i></span>
+    </div>
+    <span class="spacer"></span>
+    <span class="live"><span class="dot" aria-hidden="true"></span><span id="freshness">Live · 14s</span></span>
+    <span class="clock" id="clock">—</span>
+    <button class="lng" id="lang-toggle" type="button" aria-label="Switch to English">EN</button>
+    <button class="tgl" id="theme-toggle" type="button" aria-label="Switch to light theme">
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.4v2.2M12 19.4v2.2M4.2 12H2M22 12h-2.2M6.5 6.5 4.9 4.9M19.1 19.1l-1.6-1.6M17.5 6.5l1.6-1.6M4.9 19.1l1.6-1.6"/>
+      </svg>
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="tabs" role="tablist" id="tabs" aria-label="Werk"></div>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="readout">
+        <div class="cap" data-i="capDraw">Gesamtleistung</div>
+        <div class="big num" id="hero-kw">1.247<u>kW</u></div>
+        <div class="sub" id="hero-sub1"></div>
+      </div>
+      <div class="readout">
+        <div class="cap" data-i="capDiesel">Dieselverbrauch</div>
+        <div class="big num" id="hero-l">214<u>L/h</u></div>
+        <div class="sub" id="hero-sub2"></div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <svg viewBox="0 0 1000 380" role="img" id="flow-svg"
+           aria-label="Energy flow from grid, on-site solar and diesel into the four NSN works.">
+        <defs><clipPath id="cp"><rect x="0" y="0" width="1000" height="380"/></clipPath></defs>
+        <g clip-path="url(#cp)">
+        <path class="fpath" d="M188 78 C 330 78, 360 172, 452 186"/>
+        <path class="fpath" d="M188 186 C 300 186, 340 186, 452 190"/>
+        <path class="fpath" d="M188 296 C 330 296, 360 202, 452 194"/>
+        <path class="fdash s1" d="M188 78 C 330 78, 360 172, 452 186"/>
+        <path class="fdash s2" d="M188 186 C 300 186, 340 186, 452 190"/>
+        <path class="fdash s3" d="M188 296 C 330 296, 360 202, 452 194"/>
+        <path class="fpath" d="M596 172 C 700 172, 720 60, 812 60"/>
+        <path class="fpath" d="M596 182 C 700 182, 720 152, 812 152"/>
+        <path class="fpath" d="M596 198 C 700 198, 720 244, 812 244"/>
+        <path class="fpath" d="M596 208 C 700 208, 720 330, 812 330"/>
+        <path class="fdash s1" d="M596 172 C 700 172, 720 60, 812 60"/>
+        <path class="fdash s1" d="M596 182 C 700 182, 720 152, 812 152"/>
+        <path class="fdash s1" d="M596 198 C 700 198, 720 244, 812 244"/>
+        <path class="fdash s3" d="M596 208 C 700 208, 720 330, 812 330"/>
+
+        <rect class="fnode on" x="24" y="40" width="164" height="76" rx="18"/>
+        <text class="fcap" id="src1" x="46" y="66">NETZBEZUG</text>
+        <text class="fval" id="src1v" x="46" y="92">1.058 kW</text>
+        <circle cx="164" cy="66" r="3.5" fill="var(--blue)"/>
+
+        <rect class="fnode on" x="24" y="148" width="164" height="76" rx="18"/>
+        <text class="fcap" id="src2" x="46" y="174">PV-EIGENSTROM</text>
+        <text class="fval" id="src2v" x="46" y="200">189 kW</text>
+        <circle cx="164" cy="174" r="3.5" fill="var(--nsn)"/>
+
+        <rect class="fnode on" x="24" y="258" width="164" height="76" rx="18"/>
+        <text class="fcap" id="src3" x="46" y="284">DIESEL · FAHRZEUGE</text>
+        <text class="fval" id="src3v" x="46" y="310">214 L/h</text>
+        <circle cx="164" cy="284" r="3.5" fill="var(--orange)"/>
+
+        <circle class="fnode on" cx="524" cy="190" r="72"/>
+        <circle cx="524" cy="190" r="72" fill="none" stroke="var(--nsn)" stroke-width="2"
+                stroke-dasharray="452" stroke-dashoffset="96" transform="rotate(-90 524 190)" opacity=".9"/>
+        <text class="fcap" id="hub-cap" x="524" y="168" text-anchor="middle">VIER WERKE</text>
+        <text class="fhub" id="hub-kw" x="524" y="199" text-anchor="middle">1.247</text>
+        <text class="flabel" id="hub-label" x="524" y="221" text-anchor="middle">kW gesamt</text>
+
+        <rect id="n-magstadt" class="fnode" x="812" y="26" width="164" height="68" rx="18"/>
+        <text class="fcap" id="w1" x="834" y="50">WERK MAGSTADT</text>
+        <text class="fval" id="w1v" x="834" y="74">384 kW</text>
+        <text class="flabel" id="w1p" x="952" y="74" text-anchor="end" fill="var(--red)">+4,3 %</text>
+
+        <rect id="n-enzberg" class="fnode" x="812" y="118" width="164" height="68" rx="18"/>
+        <text class="fcap" id="w2" x="834" y="142">WERK ENZBERG</text>
+        <text class="fval" id="w2v" x="834" y="166">512 kW</text>
+        <text class="flabel" id="w2p" x="952" y="166" text-anchor="end" fill="var(--red)">+4,2 %</text>
+
+        <rect id="n-keltern" class="fnode" x="812" y="210" width="164" height="68" rx="18"/>
+        <text class="fcap" id="w3" x="834" y="234">WERK KELTERN</text>
+        <text class="fval" id="w3v" x="834" y="258">261 kW</text>
+        <text class="flabel" id="w3p" x="952" y="258" text-anchor="end" fill="var(--good)">−3,4 %</text>
+
+        <rect id="n-bruchsal" class="fnode" x="812" y="296" width="164" height="68" rx="18"/>
+        <text class="fcap" id="w4" x="834" y="320">WERK BRUCHSAL</text>
+        <text class="fval" id="w4v" x="834" y="344" fill="var(--label-3)">90 kW</text>
+        <text class="flabel" id="w4p" x="952" y="344" text-anchor="end" fill="var(--orange)">stale</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="seg" role="tablist" aria-label="Zeitraum">
+    <span class="thumb" id="thumb"></span>
+    <button role="tab" aria-selected="true" data-range="live">Live</button>
+    <button role="tab" aria-selected="false" data-range="24h">24 H</button>
+    <button role="tab" aria-selected="false" data-range="7d" data-i="r7">7 T</button>
+    <button role="tab" aria-selected="false" data-range="30d" data-i="r30">30 T</button>
+  </div>
+
+  <div class="grid g4">
+    <div class="card stat">
+      <div class="card-h"><h3 data-i="kpi1">Energiekosten</h3><span class="chip r" id="k1c">+2,3 %</span></div>
+      <div class="v num" id="k1v">29.750 €</div>
+      <div class="foot" id="k1f"></div>
+    </div>
+    <div class="card stat">
+      <div class="card-h"><h3 data-i="kpi2">Beeinflussbare Abweichung</h3><span class="chip r" data-i="toFix">Zu beheben</span></div>
+      <div class="v num r" id="k2v">+680 €</div>
+      <div class="foot" data-i="kpi2f">Nicht durch Tonnage, Gestein oder Wetter erklärt</div>
+    </div>
+    <div class="card stat">
+      <div class="card-h"><h3 data-i="kpi3">Prognose nächste Woche</h3><span class="chip b">P5–P95</span></div>
+      <div class="v num" id="k3v">28.900 €</div>
+      <div class="foot" id="k3f"></div>
+    </div>
+    <div class="card stat">
+      <div class="card-h"><h3 data-i="kpi4">Leerlaufanteil Fuhrpark</h3><span class="chip o" data-i="ptsHigh">8 Pkt. hoch</span></div>
+      <div class="v num o" id="k4v">34 %</div>
+      <div class="foot" id="k4f"></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h3 id="chart-title">Alle Werke</h3>
+          <div class="cap" id="thresh-cap" style="margin-top:6px"></div>
+        </div>
+        <span class="chip n" id="peak-chip"></span>
+      </div>
+      <svg class="chart" id="loadchart" viewBox="0 0 720 240" preserveAspectRatio="none" role="img"
+           aria-label="Electrical demand in kilowatts over time against each works' annual peak reference."></svg>
+      <div style="display:flex;justify-content:space-between;margin-top:8px" class="cap" id="chart-axis"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3 data-i="wfTitle">Warum die Rechnung stieg</h3><span class="chip n" id="wf-scope"></span></div>
+      <div class="wf" id="wf"></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--label-2);line-height:1.6" id="wf-foot"></div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="sect-h">
+      <h2 data-i="fleetTitle">Geräteauslastung heute</h2>
+      <span class="cap" data-i="fleetLegend">Arbeit · Leerlauf · Stillstand</span>
+    </div>
+    <div class="card" id="fleet"></div>
+    <div class="note" id="fleet-note"></div>
+  </div>
+
+  <div class="sect">
+    <div class="sect-h">
+      <h2 data-i="actTitle">Nächste Woche · drei Maßnahmen</h2>
+      <span class="cap" id="act-summary"></span>
+    </div>
+    <div class="grid g3" id="actions"></div>
+  </div>
+
+  <div class="note" id="footnote"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ── language ─────────────────────────────────────────────────── */
+  var lang = "de";
+  function loc(){ return lang === "de" ? "de-DE" : "en-US"; }
+  function n0(v){ return Math.round(v).toLocaleString(loc()); }
+  function eur(v){ return lang === "de" ? n0(v) + " €" : "€" + n0(v); }
+  function eurS(v){ var s = v < 0 ? "−" : "+"; return s + eur(Math.abs(v)); }
+  function pct(v){
+    var s = (v > 0 ? "+" : v < 0 ? "−" : "");
+    var num = Math.abs(v).toFixed(1).replace(".", lang === "de" ? "," : ".");
+    return lang === "de" ? s + num + " %" : s + num + "%";
+  }
+
+  var T = {
+    de:{
+      capDraw:"Gesamtleistung", capDiesel:"Dieselverbrauch",
+      runCost:"Betriebskosten", idling:"im Leerlauf",
+      over:"über Erwartung", under:"unter Erwartung", noBase:"kein Basismodell",
+      r7:"7 T", r30:"30 T",
+      allWorks:"Alle Werke",
+      kpi1:"Energiekosten", kpi2:"Beeinflussbare Abweichung", kpi2f:"Nicht durch Tonnage, Gestein oder Wetter erklärt",
+      kpi3:"Prognose nächste Woche", kpi4:"Leerlaufanteil Fuhrpark",
+      toFix:"Zu beheben", ptsHigh:"8 Pkt. hoch",
+      vsExp:"vs. erwartet", withheld:"Keine frischen Daten seit 09:12 — Wert zurückgehalten",
+      vsBudget:"vs. Budget", perPoint:"Je Prozentpunkt ≈", perYear:"/Jahr",
+      srcGrid:"NETZBEZUG", srcPv:"PV-EIGENSTROM", srcDiesel:"DIESEL · FAHRZEUGE",
+      hubCap:"VIER WERKE", kwTotal:"kW gesamt", kwGroup:"kW · Gruppe", werk:"WERK",
+      last24:"letzte 24 Stunden", thisWeek:"diese Woche", days30:"30 Tage",
+      peakLabel:"Spitze", annualPeak:"Jahreshöchstlast",
+      annualPeakInChart:"JAHRESHÖCHSTLAST", perWorks:"Jahreshöchstlast — je Werk, hier nicht dargestellt",
+      wfTitle:"Warum die Rechnung stieg", wfScope:"Alle Werke · KW 35",
+      wfRows:["Budget","Mehr Tonnage produziert","Trockene Woche, weniger Waschbetrieb",
+              "Härteres Gestein, mehr Überkorn","Effizienz — der beeinflussbare Teil",
+              "Leistungspreis-Abgrenzung","Ist"],
+      wfFoot:function(a,b){ return "Tonnage und Gesteinshärte erklären "+a+". <strong style=\"color:var(--label);font-weight:500\">"+b+" sind unsere.</strong>"; },
+      fleetTitle:"Geräteauslastung heute", fleetLegend:"Arbeit · Leerlauf · Stillstand",
+      work:"Arbeit", idle:"Leerlauf", down:"Stillstand",
+      dHours:"Betriebsstunden", dFuel:"Diesel heute", dKind:"Gerät", dSrc:"Leerlaufquelle", dNote:"Notiz",
+      measured:"Gemessen", estimated:"Geschätzt",
+      fleetNote:'Der Leerlaufanteil mobiler Geräte ist <b>aus OEM-Kennwerten geschätzt</b>, nicht gemessen. '+
+        'Telematik liefert eine Tagessumme ohne Trennung von Arbeit und Leerlauf; echte Leerlaufdaten brauchen '+
+        'die CAN-Bus-Nachrüstung. Zeilen mit Punkt führen gemessene Daten.',
+      actTitle:"Nächste Woche · drei Maßnahmen",
+      owner:"Verantw.", by:"Bis", doneWhen:"Erledigt wenn",
+      assign:"Zuweisen", dismiss:"Verwerfen", assigned:"Zugewiesen", dismissed:"Verworfen",
+      sumBoth:function(v){ return v+"/Jahr wenn beide greifen"; },
+      sumMix:function(a,o){ return a+" zugewiesen · "+o+" offen"; },
+      sumNone:"Alle drei verworfen — nichts übernommen",
+      footnote:'<b>Illustratives Modell.</b> Werke, Produkte und Standorte stammen aus öffentlich verfügbaren '+
+        'Angaben zu NSN (Muschelkalk für Hoch-, Tief-, Garten- und Landschaftsbau; Werke Magstadt, Enzberg, '+
+        'Keltern und Bruchsal; Recycling von Betonaufbruch). Sämtliche Energie-, Kosten- und Gerätewerte auf '+
+        'diesem Bildschirm sind modelliert, um das Verhalten des Systems zu zeigen — es sind '+
+        '<b>keine Betriebsdaten von NSN</b>. Auch der PV-Knoten gehört zum modellierten Szenario. '+
+        'Jede angezeigte Zahl würde deterministisch vorgelagert berechnet; nichts stammt aus einem Sprachmodell. '+
+        'Veraltete Quellen werden ausgegraut statt als Zahl dargestellt.<br><br>'+
+        '<b>Hinweis zur Pflicht:</b> Bei einem Gesamtendenergieverbrauch über 7,5 GWh im Jahr greift nach '+
+        '<b>EnEfG §8</b> die Pflicht zu einem Energiemanagementsystem — Strom plus Diesel liegen in diesem '+
+        'Modell bereits darüber. Dieselbe Datenbasis trägt <b>ISO 50001</b>, den Spitzenausgleich und die '+
+        'bestehende <b>CSC-Zertifizierung</b> in Magstadt und Enzberg.',
+      themeLight:"Zu hellem Design wechseln", themeDark:"Zu dunklem Design wechseln",
+      langBtn:"EN", langAria:"Switch to English"
+    },
+    en:{
+      capDraw:"Total draw", capDiesel:"Diesel burn",
+      runCost:"Running cost", idling:"idling",
+      over:"over expected", under:"under expected", noBase:"no baseline model",
+      r7:"7 D", r30:"30 D",
+      allWorks:"All works",
+      kpi1:"Energy cost", kpi2:"Controllable variance", kpi2f:"Not explained by tonnage, rock or weather",
+      kpi3:"Forecast next week", kpi4:"Fleet idle share",
+      toFix:"To fix", ptsHigh:"8 pts high",
+      vsExp:"vs expected", withheld:"No fresh data since 09:12 — figure withheld",
+      vsBudget:"vs budget", perPoint:"Each point ≈", perYear:"/yr",
+      srcGrid:"GRID IMPORT", srcPv:"SOLAR, SELF-USED", srcDiesel:"DIESEL · MOBILE FLEET",
+      hubCap:"FOUR WORKS", kwTotal:"kW total", kwGroup:"kW · group", werk:"WORKS",
+      last24:"last 24 hours", thisWeek:"this week", days30:"30 days",
+      peakLabel:"Peak", annualPeak:"Annual peak demand",
+      annualPeakInChart:"ANNUAL PEAK", perWorks:"Annual peak demand — per works, not shown here",
+      wfTitle:"Why the bill moved", wfScope:"All works · W 35",
+      wfRows:["Budget","More tonnage produced","Drier week, less washing",
+              "Harder rock, more oversize","Efficiency — the controllable part",
+              "Demand-charge accrual","Actual"],
+      wfFoot:function(a,b){ return "Tonnage and rock hardness explain "+a+". <strong style=\"color:var(--label);font-weight:500\">"+b+" is ours to fix.</strong>"; },
+      fleetTitle:"Equipment activity today", fleetLegend:"Working · Idle · Down",
+      work:"working", idle:"idle", down:"down",
+      dHours:"Engine hours", dFuel:"Diesel today", dKind:"Equipment", dSrc:"Idle source", dNote:"Note",
+      measured:"Measured", estimated:"Estimated",
+      fleetNote:'Idle share for mobile plant is <b>estimated from OEM rates</b>, not measured. Telematics gives '+
+        'a daily total with no split between working and idling; real idle data needs the CAN-bus retrofit. '+
+        'Rows marked with a dot carry measured data.',
+      actTitle:"Next week · three measures",
+      owner:"Owner", by:"By", doneWhen:"Done when",
+      assign:"Assign", dismiss:"Dismiss", assigned:"Assigned", dismissed:"Dismissed",
+      sumBoth:function(v){ return v+"/yr if both hold"; },
+      sumMix:function(a,o){ return a+" assigned · "+o+" open"; },
+      sumNone:"All three dismissed — nothing carried forward",
+      footnote:'<b>Illustrative model.</b> The works, products and locations come from publicly available '+
+        'information about NSN (Muschelkalk shell limestone for building, civil engineering and landscaping; '+
+        'the Magstadt, Enzberg, Keltern and Bruchsal works; recycling of concrete rubble). Every energy, cost '+
+        'and equipment figure on this screen is modelled to show how the system behaves — these are '+
+        '<b>not NSN operational data</b>. The solar node is part of the modelled scenario too. '+
+        'Every figure shown would be computed deterministically upstream; nothing originates from a language '+
+        'model. Stale sources render greyed rather than as a number.<br><br>'+
+        '<b>Compliance note:</b> above 7.5 GWh of total final energy per year, <b>EnEfG §8</b> requires a '+
+        'certified energy management system — electricity plus diesel already clear that in this model. The '+
+        'same data supports <b>ISO 50001</b>, the Spitzenausgleich tax relief, and the existing '+
+        '<b>CSC certification</b> at Magstadt and Enzberg.',
+      themeLight:"Switch to light theme", themeDark:"Switch to dark theme",
+      langBtn:"DE", langAria:"Auf Deutsch umschalten"
+    }
+  };
+  function t(){ return T[lang]; }
+
+  /* ── data (numbers, formatted at render) ──────────────────────── */
+  var WORKS = ["magstadt","enzberg","keltern","bruchsal"];
+  var siteData = {
+    alle:     {kw:1247,l:214,idle:34,rate:352,dcost:282,cost:29750,exp:29070,pct:2.3,cls:"up",
+               node:null,scale:1,thresh:null},
+    magstadt: {kw:384,l:88,idle:38,rate:108,dcost:116,cost:9140,exp:8760,pct:4.3,cls:"up",
+               node:"n-magstadt",scale:0.308,thresh:580},
+    enzberg:  {kw:512,l:62,idle:29,rate:145,dcost:82,cost:11480,exp:11020,pct:4.2,cls:"up",
+               node:"n-enzberg",scale:0.411,thresh:690},
+    keltern:  {kw:261,l:51,idle:31,rate:74,dcost:67,cost:6210,exp:6430,pct:-3.4,cls:"down",
+               node:"n-keltern",scale:0.209,thresh:400},
+    bruchsal: {kw:90,l:13,idle:null,rate:25,dcost:17,cost:null,exp:null,pct:null,cls:"",
+               node:"n-bruchsal",scale:0.072,thresh:150,stale:true}
+  };
+  var NAMES = {alle:null,magstadt:"Magstadt",enzberg:"Enzberg",keltern:"Keltern",bruchsal:"Bruchsal"};
+  var currentSite = "alle";
+
+  var WF = [
+    {v:28100, tot:true,  w:100, c:"var(--card-3)"},
+    {v:1240,  w:40,  c:"var(--label-3)"},
+    {v:-310,  w:10,  c:"var(--good)"},
+    {v:460,   w:15,  c:"var(--label-3)"},
+    {v:680,   w:22,  c:"var(--red)", key:true},
+    {v:-420,  w:14,  c:"var(--good)"},
+    {v:29750, tot:true, w:100, c:"var(--label)"}
+  ];
+
+  var fleet = [
+    {id:"RL-14",de:"Radlader · Magstadt",en:"Wheel loader · Magstadt",work:58,idle:38,down:4,
+     sp:"0,31 L/t",spEn:"0.31 L/t",m:true,hrs:"8,6",hrsEn:"8.6",fuel:"412 L",
+     nDe:"Verladung, Wartezeit an der Waage",nEn:"Loading, waiting at the weighbridge"},
+    {id:"RL-09",de:"Radlader · Enzberg",en:"Wheel loader · Enzberg",work:67,idle:29,down:4,
+     sp:"0,26 L/t",spEn:"0.26 L/t",m:true,hrs:"9,1",hrsEn:"9.1",fuel:"338 L",
+     nDe:"Haldenbeschickung Brecher",nEn:"Feeding the crusher from stockpile"},
+    {id:"MK-03",de:"Muldenkipper · Magstadt",en:"Dumper · Magstadt",work:61,idle:33,down:6,
+     sp:"0,22 L/t",spEn:"0.22 L/t",m:true,hrs:"7,8",hrsEn:"7.8",fuel:"286 L",
+     nDe:"Fahrweg Sohle → Vorbrecher",nEn:"Haul route pit floor → primary crusher"},
+    {id:"BG-05",de:"Kettenbagger · Keltern",en:"Tracked excavator · Keltern",work:72,idle:24,down:4,
+     sp:"0,34 L/t",spEn:"0.34 L/t",m:true,hrs:"8,2",hrsEn:"8.2",fuel:"304 L",
+     nDe:"Sprenghaufwerk",nEn:"Working the shot pile"},
+    {id:"BB-01",de:"Backenbrecher · Enzberg",en:"Jaw crusher · Enzberg",work:88,idle:9,down:3,
+     sp:"1,42 kWh/t",spEn:"1.42 kWh/t",m:true,hrs:"9,4",hrsEn:"9.4",fuel:"—",
+     nDe:"Anfahrt setzt Lastspitze",nEn:"Start-up sets the demand peak"},
+    {id:"KB-02",de:"Kegelbrecher · Keltern",en:"Cone crusher · Keltern",work:84,idle:11,down:5,
+     sp:"2,18 kWh/t",spEn:"2.18 kWh/t",m:true,hrs:"8,9",hrsEn:"8.9",fuel:"—",
+     nDe:"CSS enger als Auftragslage",nEn:"Closed-side setting tighter than the order book"},
+    {id:"SB-01",de:"Siebanlage · Enzberg",en:"Screening plant · Enzberg",work:86,idle:13,down:1,
+     sp:"0,41 kWh/t",spEn:"0.41 kWh/t",m:true,hrs:"9,2",hrsEn:"9.2",fuel:"—",
+     nDe:"0/2-Überschuss auf Halde",nEn:"0/2 fines surplus going to stockpile"},
+    {id:"RA-01",de:"Recyclinganlage · Bruchsal",en:"Recycling plant · Bruchsal",work:47,idle:28,down:25,
+     sp:"1,86 kWh/t",spEn:"1.86 kWh/t",m:false,hrs:"5,1",hrsEn:"5.1",fuel:"—",
+     nDe:"Betonaufbruch, Störung 11:40",nEn:"Concrete rubble, fault at 11:40"}
+  ];
+
+  var actions = [
+    {worth:9520, perDe:"pro Jahr · Leistungspreis", perEn:"per year · demand charge",
+     chipDe:"Hohe Konfidenz", chipEn:"High confidence", chipCls:"g",
+     doDe:"Anfahrt des Backenbrechers in Enzberg nach der Frühstückspause staffeln, damit sie nicht mit Siebanlage und Waschbetrieb zusammenfällt.",
+     doEn:"Stagger the Enzberg jaw crusher start-up after the morning break so it never coincides with the screening plant and the wash line.",
+     ownDe:"M. Braun · Elektromeister", ownEn:"M. Braun · Master electrician",
+     byDe:"Di 01.09.", byEn:"Tue 01 Sep",
+     okDe:"Höchste 15-Minuten-Leistung in Enzberg bleibt im Abrechnungsjahr ≤ 690 kW",
+     okEn:"Highest 15-minute demand at Enzberg stays ≤ 690 kW for the billing year"},
+    {worth:18400, perDe:"pro Jahr · Entscheidung offen", perEn:"per year · decision blocked",
+     chipDe:"Kornverteilung unbekannt", chipEn:"Grading unknown", chipCls:"o",
+     doDe:"Fünftägiger Einstellversuch am Kegelbrecher Keltern: CSS von 22 auf 32 mm öffnen und die Kornverteilung gegen den Energiebedarf messen.",
+     doEn:"Five-day setting trial on the Keltern cone crusher: open the closed-side setting from 22 to 32 mm and measure grading against energy demand.",
+     ownDe:"S. Keller · Betriebsleiter", ownEn:"S. Keller · Plant manager",
+     byDe:"Fr 04.09.", byEn:"Fri 04 Sep",
+     okDe:"Kurve Kornverteilung gegen kWh/t für CSS 22–32 mm — noch keine Umstellung",
+     okEn:"A grading-versus-kWh/t curve for 22–32 mm — not a settings change yet"},
+    {worth:6900, perDe:"pro Jahr · 133 €/Woche", perEn:"per year · €133/week",
+     chipDe:"Hohe Konfidenz", chipEn:"High confidence", chipCls:"g",
+     doDe:"Verladeablauf Magstadt entzerren: feste Anfahrtsfenster für LKW, damit RL-14 nicht 38 % der Schicht im Leerlauf an der Waage steht.",
+     doEn:"Smooth the Magstadt loading sequence with fixed truck arrival windows, so RL-14 no longer idles 38% of the shift at the weighbridge.",
+     ownDe:"T. Hofmann · Werkstattleiter", ownEn:"T. Hofmann · Workshop manager",
+     byDe:"So 06.09.", byEn:"Sun 06 Sep",
+     okDe:"Leerlaufanteil RL-14 fällt von 38 % auf ≤ 28 % im Wochenmittel",
+     okEn:"RL-14 idle share falls from 38% to ≤ 28% on a weekly average"}
+  ];
+
+  var series = {
+    live:{pts:[262,248,236,232,240,318,742,1284,1602,1847,1712,1498,1188,1402,1547,1618,1462,1180,864,562,398,332,296,274],
+          labels:["00","06","12","18","24"], per:"last24"},
+    "24h":{pts:[262,248,236,232,240,318,742,1284,1602,1847,1712,1498,1188,1402,1547,1618,1462,1180,864,562,398,332,296,274],
+          labels:["00","06","12","18","24"], per:"last24"},
+    "7d":{pts:[1602,1847,1712,1498,1188,412,286,1524,1786,1698,1602,1247,398,274,1588,1742,1806,1654,1312,426,292,1476,1698,1847,1602,1284,404,268],
+          labelsDe:["Mo","Di","Mi","Do","Fr","Sa","So"],
+          labelsEn:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], per:"thisWeek"},
+    "30d":{pts:[1498,1602,1712,1654,1588,1476,1312,1247,1402,1547,1618,1698,1742,1786,1847,1712,1602,1524,1476,1588,1654,1698,1806,1742,1618,1547,1476,1402,1312,1247],
+          labelsDe:["KW 32","KW 33","KW 34","KW 35"],
+          labelsEn:["W 32","W 33","W 34","W 35"], per:"days30"}
+  };
+
+  /* ── clock & live ─────────────────────────────────────────────── */
+  var clockEl = document.getElementById("clock");
+  setInterval(function(){
+    var d = new Date();
+    clockEl.textContent = String(d.getHours()).padStart(2,"0")+":"+
+      String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");
+  },1000);
+
+  var fresh = 14, freshEl = document.getElementById("freshness");
+  setInterval(function(){
+    fresh = fresh >= 58 ? 6 : fresh + 2;
+    freshEl.textContent = "Live · " + fresh + "s";
+  },2000);
+
+  var kwEl = document.getElementById("hero-kw"), lEl = document.getElementById("hero-l");
+  var liveMode = true, liveKw = 1247, liveL = 214;
+  setInterval(function(){
+    if(!liveMode) return;
+    liveKw = 1247 + (Math.random()-0.5)*74;
+    liveL  = 214 + Math.round((Math.random()-0.5)*22);
+    kwEl.innerHTML = n0(liveKw) + "<u>kW</u>";
+    lEl.innerHTML  = n0(liveL) + "<u>L/h</u>";
+    document.getElementById("hub-kw").textContent = n0(liveKw);
+    renderHeroSubs();
+  },2600);
+
+  /* ── render ───────────────────────────────────────────────────── */
+  var seg = document.querySelector(".seg"),
+      segBtns = Array.prototype.slice.call(seg.querySelectorAll("button")),
+      thumb = document.getElementById("thumb");
+  function currentRange(){
+    var b = seg.querySelector('[aria-selected="true"]');
+    return b ? b.dataset.range : "live";
+  }
+  function d(){ return siteData[currentSite]; }
+
+  function renderHeroSubs(){
+    var s = d(), L = t();
+    var rate = (currentSite === "alle") ? (150 + liveKw*0.162) : s.rate;
+    var deltaTxt = (s.pct == null) ? L.noBase
+      : pct(s.pct) + " " + (s.pct > 0 ? L.over : L.under);
+    document.getElementById("hero-sub1").innerHTML =
+      L.runCost + ' <span class="num">' + eur(rate) + '</span>/h · ' +
+      '<span class="delta ' + s.cls + '">' + deltaTxt + '</span>';
+    document.getElementById("hero-sub2").innerHTML =
+      (s.idle == null ? "—" : s.idle + (lang==="de" ? " %" : "%")) + " " + L.idling +
+      ' · <span class="num">' + eur(s.dcost) + '</span>/h';
+  }
+
+  function renderTabs(){
+    var box = document.getElementById("tabs"), L = t();
+    box.innerHTML = "";
+    ["alle"].concat(WORKS).forEach(function(k){
+      var b = document.createElement("button");
+      b.className = "tab"; b.setAttribute("role","tab");
+      b.dataset.site = k;
+      b.setAttribute("aria-selected", String(k === currentSite));
+      b.textContent = (k === "alle") ? L.allWorks : NAMES[k];
+      b.addEventListener("click", function(){ selectSite(k); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderFlow(){
+    var L = t();
+    document.getElementById("src1").textContent = L.srcGrid;
+    document.getElementById("src2").textContent = L.srcPv;
+    document.getElementById("src3").textContent = L.srcDiesel;
+    document.getElementById("src1v").textContent = n0(1058) + " kW";
+    document.getElementById("src2v").textContent = n0(189) + " kW";
+    document.getElementById("src3v").textContent = n0(214) + " L/h";
+    document.getElementById("hub-cap").textContent = L.hubCap;
+    document.getElementById("hub-kw").textContent = n0(liveMode ? liveKw : 1247);
+    document.getElementById("hub-label").textContent = d().node ? L.kwGroup : L.kwTotal;
+    WORKS.forEach(function(k,i){
+      var s = siteData[k], nm = NAMES[k].toUpperCase();
+      document.getElementById("w"+(i+1)).textContent =
+        (lang === "de") ? (L.werk + " " + nm) : (nm + " " + L.werk);
+      document.getElementById("w"+(i+1)+"v").textContent = n0(s.kw) + " kW";
+      var p = document.getElementById("w"+(i+1)+"p");
+      p.textContent = (s.pct == null) ? "stale" : pct(s.pct);
+      p.setAttribute("fill", s.pct == null ? "var(--orange)"
+        : (s.pct > 0 ? "var(--red)" : "var(--good)"));
+    });
+    WORKS.forEach(function(k){
+      var n = document.getElementById(siteData[k].node); if(!n) return;
+      var sel = (d().node === siteData[k].node);
+      if(sel) n.classList.add("sel"); else n.classList.remove("sel");
+      n.style.opacity = (d().node && !sel) ? ".38" : "1";
+    });
+  }
+
+  function renderKpis(){
+    var s = d(), L = t();
+    var k1v = document.getElementById("k1v"), k1c = document.getElementById("k1c");
+    k1v.textContent = s.stale ? "—" : eur(s.cost);
+    k1v.style.color = s.stale ? "var(--label-4)" : "";
+    document.getElementById("k1f").textContent = s.stale ? L.withheld : (L.vsExp + " " + eur(s.exp));
+    k1c.textContent = s.stale ? (lang==="de" ? "Alt 52 Min." : "Stale 52m") : pct(s.pct);
+    k1c.className = s.stale ? "chip o" : (s.pct > 0 ? "chip r" : "chip g");
+
+    document.getElementById("k2v").textContent = eurS(680);
+    document.getElementById("k3v").textContent = eur(28900);
+    document.getElementById("k3f").innerHTML =
+      eur(27300) + " – " + eur(30600) + " · " + pct(-1.1) + " " + L.vsBudget;
+    document.getElementById("k4v").textContent = 34 + (lang==="de" ? " %" : "%");
+    document.getElementById("k4f").innerHTML =
+      L.perPoint + ' <span class="num">' + eur(5100) + "</span>" + L.perYear;
+  }
+
+  function renderWf(){
+    var L = t(), box = document.getElementById("wf");
+    box.innerHTML = WF.map(function(r,i){
+      var cls = "wfr" + (r.tot ? " tot" : "") + (r.key ? " key" : "");
+      var val = r.tot ? eur(r.v) : eurS(r.v);
+      return '<div class="'+cls+'"><span class="l">'+L.wfRows[i]+'</span>'+
+             '<span class="n">'+val+'</span><span class="wfb">'+
+             '<i style="left:0;width:'+r.w+'%;background:'+r.c+'"></i></span></div>';
+    }).join("");
+    document.getElementById("wf-scope").textContent = L.wfScope;
+    document.getElementById("wf-foot").innerHTML = L.wfFoot(eur(1700), eur(680));
+  }
+
+  function renderFleet(){
+    var L = t(), box = document.getElementById("fleet");
+    box.innerHTML = "";
+    fleet.forEach(function(a){
+      var kind = (lang === "de") ? a.de : a.en;
+      var wrap = document.createElement("div");
+      wrap.className = "asset"; wrap.dataset.open = "false";
+      wrap.innerHTML =
+        '<button class="asset-b" aria-expanded="false">'+
+          '<span class="aid">'+a.id+(a.m?' <span style="color:var(--good)">•</span>':'')+
+            '<i>'+kind.split(" · ")[0]+'</i></span>'+
+          '<span><span class="util">'+
+            '<i class="work" style="width:'+a.work+'%"></i>'+
+            '<i class="idle" style="width:'+a.idle+'%"></i>'+
+            '<i class="down" style="width:'+a.down+'%"></i></span>'+
+            '<span class="ulegend">'+a.work+'% '+L.work+' · '+a.idle+'% '+L.idle+' · '+a.down+'% '+L.down+'</span>'+
+          '</span>'+
+          '<span class="sp">'+(lang==="de"?a.sp:a.spEn)+'</span>'+
+          '<span class="chev" aria-hidden="true">›</span>'+
+        '</button>'+
+        '<div class="detail">'+
+          '<div><div class="cap">'+L.dHours+'</div><div class="dv">'+(lang==="de"?a.hrs:a.hrsEn)+'</div></div>'+
+          '<div><div class="cap">'+L.dFuel+'</div><div class="dv">'+a.fuel+'</div></div>'+
+          '<div><div class="cap">'+L.dKind+'</div><div class="dv" style="font-size:12.5px">'+kind+'</div></div>'+
+          '<div><div class="cap">'+L.dSrc+'</div><div class="dv" style="font-size:12.5px;color:'+
+            (a.m?"var(--good)":"var(--orange)")+'">'+(a.m?L.measured:L.estimated)+'</div></div>'+
+          '<div style="grid-column:1/-1"><div class="cap">'+L.dNote+'</div>'+
+            '<div class="dv" style="font-size:12.5px;color:var(--label-2)">'+(lang==="de"?a.nDe:a.nEn)+'</div></div>'+
+        '</div>';
+      var btn = wrap.querySelector("button");
+      btn.addEventListener("click", function(){
+        var open = wrap.dataset.open === "true";
+        wrap.dataset.open = open ? "false" : "true";
+        btn.setAttribute("aria-expanded", open ? "false" : "true");
+      });
+      box.appendChild(wrap);
+    });
+    document.getElementById("fleet-note").innerHTML = L.fleetNote;
+  }
+
+  var actState = [null,null,null];
+  function renderActions(){
+    var L = t(), box = document.getElementById("actions");
+    box.innerHTML = "";
+    actions.forEach(function(a,i){
+      var c = document.createElement("div");
+      c.className = "act";
+      c.dataset.state = actState[i] || "open";
+      c.innerHTML =
+        '<div class="top"><span class="chip '+a.chipCls+'">'+(lang==="de"?a.chipDe:a.chipEn)+'</span>'+
+          '<span class="worth">'+eur(a.worth)+'<u>'+(lang==="de"?a.perDe:a.perEn)+'</u></span></div>'+
+        '<p class="do">'+(lang==="de"?a.doDe:a.doEn)+'</p>'+
+        '<dl><dt>'+L.owner+'</dt><dd>'+(lang==="de"?a.ownDe:a.ownEn)+'</dd>'+
+        '<dt>'+L.by+'</dt><dd>'+(lang==="de"?a.byDe:a.byEn)+'</dd>'+
+        '<dt>'+L.doneWhen+'</dt><dd>'+(lang==="de"?a.okDe:a.okEn)+'</dd></dl>'+
+        '<div class="btns"><button class="btn p"></button><button class="btn"></button></div>';
+      var b = c.querySelectorAll("button");
+      function paint(){
+        var st = c.dataset.state;
+        b[0].textContent = st === "done" ? L.assigned : L.assign;
+        b[1].textContent = st === "off"  ? L.dismissed : L.dismiss;
+        b[0].disabled = st !== "open";
+        b[1].disabled = st !== "open";
+      }
+      b[0].addEventListener("click", function(){ actState[i]="done"; c.dataset.state="done"; paint(); recount(); });
+      b[1].addEventListener("click", function(){ actState[i]="off";  c.dataset.state="off";  paint(); recount(); });
+      paint();
+      box.appendChild(c);
+    });
+    recount();
+  }
+  function recount(){
+    var L = t(), open = 0, assigned = 0;
+    actState.forEach(function(s){ if(!s) open++; if(s === "done") assigned++; });
+    var el = document.getElementById("act-summary");
+    if(open === 0 && assigned === 0) el.textContent = L.sumNone;
+    else if(assigned > 0) el.textContent = L.sumMix(assigned, open);
+    else el.textContent = L.sumBoth(eur(16420));
+  }
+
+  /* ── chart ────────────────────────────────────────────────────── */
+  var svg = document.getElementById("loadchart"), W = 720, H = 240, PAD = 14;
+  function token(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+  function drawChart(range){
+    var s = series[range] || series.live, L = t(), site = d();
+    var pts = s.pts.map(function(v){ return v * site.scale; });
+    var TH = site.thresh, showT = (TH != null);
+
+    var hi = Math.max.apply(null,pts), lo = Math.min.apply(null,pts);
+    var max = showT ? Math.max(hi,TH)*1.07 : hi*1.08;
+    var min = Math.max(0, lo*0.80);
+    if(max - min < 1) max = min + 1;
+
+    var n = pts.length;
+    var x = function(i){ return PAD + (i/(n-1))*(W-PAD*2); };
+    var y = function(v){ return H - PAD - ((v-min)/(max-min))*(H-PAD*2); };
+
+    var line = "";
+    for(var i=0;i<n;i++){ line += (i?" L":"M") + x(i).toFixed(1) + " " + y(pts[i]).toFixed(1); }
+    var area = line + " L"+x(n-1).toFixed(1)+" "+(H-PAD)+" L"+x(0).toFixed(1)+" "+(H-PAD)+" Z";
+
+    var g = "";
+    for(var k=0;k<=4;k++){
+      var v = min + (max-min)*k/4;
+      g += '<line class="gridline" x1="'+PAD+'" y1="'+y(v).toFixed(1)+'" x2="'+(W-PAD)+'" y2="'+y(v).toFixed(1)+'"/>';
+      g += '<text class="axis" x="'+(PAD+3)+'" y="'+(y(v)-4).toFixed(1)+'">'+n0(v)+'</text>';
+    }
+    var over = showT && hi > TH;
+    if(showT){
+      g += '<line class="thresh" x1="'+PAD+'" y1="'+y(TH).toFixed(1)+'" x2="'+(W-PAD)+'" y2="'+y(TH).toFixed(1)+'"/>';
+      g += '<text class="axis" x="'+(W-PAD-3)+'" y="'+(y(TH)-5).toFixed(1)+
+           '" text-anchor="end" fill="var(--red)">'+L.annualPeakInChart+' '+n0(TH)+' kW</text>';
+    }
+    var mark = over ? "var(--red)" : "var(--nsn)";
+    svg.innerHTML =
+      '<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0%" stop-color="'+token("--chart-a")+'"/>'+
+      '<stop offset="100%" stop-color="'+token("--chart-b")+'"/></linearGradient></defs>'+ g +
+      '<path d="'+area+'" fill="url(#fill)"/>'+
+      '<path d="'+line+'" fill="none" stroke="var(--nsn)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+
+      '<circle cx="'+x(pts.indexOf(hi)).toFixed(1)+'" cy="'+y(hi).toFixed(1)+'" r="4.5" fill="'+mark+'"/>'+
+      '<circle cx="'+x(pts.indexOf(hi)).toFixed(1)+'" cy="'+y(hi).toFixed(1)+'" r="9" fill="none" stroke="'+mark+'" stroke-width="1" opacity=".5"/>';
+
+    document.getElementById("chart-title").textContent =
+      (currentSite === "alle" ? L.allWorks : NAMES[currentSite]) + " · " + L[s.per];
+    var labels = s.labels || (lang === "de" ? s.labelsDe : s.labelsEn);
+    document.getElementById("chart-axis").innerHTML =
+      labels.map(function(l){ return "<span>"+l+"</span>"; }).join("");
+
+    var chip = document.getElementById("peak-chip");
+    chip.textContent = L.peakLabel + " " + n0(hi) + " kW";
+    chip.className = over ? "chip r" : "chip n";
+    document.getElementById("thresh-cap").textContent = showT
+      ? L.annualPeak + " " + NAMES[currentSite] + " " + n0(TH) + " kW"
+      : L.perWorks;
+  }
+
+  /* ── selection ────────────────────────────────────────────────── */
+  function selectSite(k){
+    currentSite = k;
+    liveMode = (k === "alle");
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
+      b.setAttribute("aria-selected", String(b.dataset.site === k));
+    });
+    var s = d();
+    kwEl.innerHTML = n0(liveMode ? liveKw : s.kw) + "<u>kW</u>";
+    lEl.innerHTML  = n0(liveMode ? liveL : s.l) + "<u>L/h</u>";
+    renderHeroSubs(); renderFlow(); renderKpis(); drawChart(currentRange());
+  }
+
+  function renderAll(){
+    var L = t();
+    document.documentElement.lang = lang;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i]"), function(el){
+      el.textContent = L[el.dataset.i];
+    });
+    renderTabs(); renderFlow(); renderHeroSubs(); renderKpis(); renderWf();
+    renderFleet(); renderActions(); drawChart(currentRange());
+    kwEl.innerHTML = n0(liveMode ? liveKw : d().kw) + "<u>kW</u>";
+    lEl.innerHTML  = n0(liveMode ? liveL : d().l) + "<u>L/h</u>";
+    document.getElementById("footnote").innerHTML = L.footnote;
+    var lb = document.getElementById("lang-toggle");
+    lb.textContent = L.langBtn; lb.setAttribute("aria-label", L.langAria);
+    paintTheme(activeTheme());
+    requestAnimationFrame(function(){
+      var cur = seg.querySelector('[aria-selected="true"]'); if(cur) moveThumb(cur);
+    });
+  }
+
+  /* ── segmented control ────────────────────────────────────────── */
+  function moveThumb(btn){
+    thumb.style.width = btn.offsetWidth + "px";
+    thumb.style.transform = "translateX(" + (btn.offsetLeft - 2) + "px)";
+  }
+  segBtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      segBtns.forEach(function(x){ x.setAttribute("aria-selected","false"); });
+      b.setAttribute("aria-selected","true");
+      moveThumb(b); drawChart(b.dataset.range);
+    });
+  });
+
+  /* ── theme ────────────────────────────────────────────────────── */
+  var root = document.documentElement,
+      tgl = document.getElementById("theme-toggle"),
+      mqLight = window.matchMedia("(prefers-color-scheme: light)");
+  function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function activeTheme(){
+    if(root.classList.contains("t-light")) return "light";
+    if(root.classList.contains("t-dark"))  return "dark";
+    var st = root.getAttribute("data-theme");
+    if(st === "light" || st === "dark") return st;
+    return mqLight.matches ? "light" : "dark";
+  }
+  function paintTheme(th){
+    tgl.querySelector(".i-sun").style.display  = (th === "dark")  ? "block" : "none";
+    tgl.querySelector(".i-moon").style.display = (th === "light") ? "block" : "none";
+    tgl.setAttribute("aria-label", th === "dark" ? t().themeLight : t().themeDark);
+  }
+  function applyTheme(th){
+    root.classList.toggle("t-light", th === "light");
+    root.classList.toggle("t-dark",  th === "dark");
+    paintTheme(th); drawChart(currentRange());
+  }
+  var savedTheme = get("nsn-theme");
+  if(savedTheme === "light" || savedTheme === "dark") applyTheme(savedTheme);
+  tgl.addEventListener("click", function(){
+    var next = activeTheme() === "dark" ? "light" : "dark";
+    applyTheme(next); set("nsn-theme", next);
+  });
+  if(mqLight.addEventListener){
+    mqLight.addEventListener("change", function(){
+      if(get("nsn-theme")) return;
+      paintTheme(activeTheme()); drawChart(currentRange());
+    });
+  }
+
+  /* ── language toggle ──────────────────────────────────────────── */
+  var savedLang = get("nsn-lang");
+  if(savedLang === "de" || savedLang === "en") lang = savedLang;
+  document.getElementById("lang-toggle").addEventListener("click", function(){
+    lang = (lang === "de") ? "en" : "de";
+    set("nsn-lang", lang);
+    renderAll();
+  });
+
+  renderAll();
+  window.addEventListener("resize", function(){
+    var cur = seg.querySelector('[aria-selected="true"]'); if(cur) moveThumb(cur);
+  });
+})();
+</script>
+
+</body></html>
