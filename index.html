@@ -268,6 +268,12 @@ h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.022em}
 .note{margin-top:26px;padding:16px 20px;border:.5px solid var(--hair-soft);border-radius:14px;
   font-size:12.5px;color:var(--label-3);line-height:1.55}
 .note b{color:var(--label-2);font-weight:500}
+.disclaimer{display:flex;align-items:flex-start;gap:11px;margin:18px 0 0;padding:12px 15px;
+  border:.5px solid var(--hair);border-radius:13px;background:var(--card);
+  font-size:12.5px;line-height:1.5;color:var(--label-2)}
+.disclaimer b{flex:none;font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--orange);padding-top:3px;white-space:nowrap}
+@media(max-width:560px){.disclaimer{flex-direction:column;gap:5px}}
 .sect{margin-top:34px}
 .sect-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
 .sect-h h2{font-size:19px;font-weight:500}
@@ -296,6 +302,11 @@ h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.022em}
 </div>
 
 <div class="shell">
+
+  <div class="disclaimer" role="note">
+    <b data-i="bannerLabel">Konzeptstudie</b>
+    <span data-i="bannerText">Modellierte Daten zu Demonstrationszwecken — keine Betriebsdaten. Nicht mit NSN verbunden und nicht von NSN beauftragt.</span>
+  </div>
 
   <div class="tabs" role="tablist" id="tabs" aria-label="Werk"></div>
 
@@ -469,6 +480,8 @@ h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.022em}
 
   var T = {
     de:{
+      bannerLabel:"Konzeptstudie",
+      bannerText:"Modellierte Daten zu Demonstrationszwecken — keine Betriebsdaten. Nicht mit NSN verbunden und nicht von NSN beauftragt.",
       capDraw:"Gesamtleistung", capDiesel:"Dieselverbrauch",
       runCost:"Betriebskosten", idling:"im Leerlauf",
       over:"über Erwartung", under:"unter Erwartung", noBase:"kein Basismodell",
@@ -517,6 +530,8 @@ h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.022em}
       langBtn:"EN", langAria:"Switch to English"
     },
     en:{
+      bannerLabel:"Concept demo",
+      bannerText:"Modelled data for demonstration — not operational data. Not affiliated with or endorsed by NSN.",
       capDraw:"Total draw", capDiesel:"Diesel burn",
       runCost:"Running cost", idling:"idling",
       over:"over expected", under:"under expected", noBase:"no baseline model",
